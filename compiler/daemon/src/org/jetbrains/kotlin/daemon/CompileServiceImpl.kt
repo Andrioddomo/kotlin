@@ -220,7 +220,7 @@ class CompileServiceImpl(
         CompileService.CallResult.Good(daemonJVMOptions)
     }
 
-    override fun registerClient(aliveFlagPath: String?): CompileService.CallResult<Nothing> = ifAlive {
+    override fun registerClient(aliveFlagPath: String?): CompileService.CallResult<Nothing> = ifAlive(minAliveness = Aliveness.Alive) {
         synchronized(state.clientProxies) {
             state.clientProxies.add(ClientOrSessionProxy(aliveFlagPath))
             log.info("Registered a client alive file: $aliveFlagPath")
@@ -848,7 +848,7 @@ class CompileServiceImpl(
         (KotlinCoreEnvironment.applicationEnvironment?.jarFileSystem as? CoreJarFileSystem)?.clearHandlersCache()
     }
 
-    private fun<R> ifAlive(minAliveness: Aliveness = Aliveness.Alive,
+    private fun<R> ifAlive(minAliveness: Aliveness = Aliveness.LastSession,
                            ignoreCompilerChanged: Boolean = false,
                            body: () -> CompileService.CallResult<R>
     ): CompileService.CallResult<R> =
@@ -856,7 +856,7 @@ class CompileServiceImpl(
                 ifAliveChecksImpl(minAliveness, ignoreCompilerChanged, body)
             }
 
-    private fun<R> ifAliveExclusive(minAliveness: Aliveness = Aliveness.Alive,
+    private fun<R> ifAliveExclusive(minAliveness: Aliveness = Aliveness.LastSession,
                                     ignoreCompilerChanged: Boolean = false,
                                     body: () -> CompileService.CallResult<R>
     ): CompileService.CallResult<R> =
@@ -864,7 +864,7 @@ class CompileServiceImpl(
                 ifAliveChecksImpl(minAliveness, ignoreCompilerChanged, body)
             }
 
-    inline private fun<R> ifAliveChecksImpl(minAliveness: Aliveness = Aliveness.Alive, ignoreCompilerChanged: Boolean = false, body: () -> CompileService.CallResult<R>): CompileService.CallResult<R> {
+    inline private fun<R> ifAliveChecksImpl(minAliveness: Aliveness = Aliveness.LastSession, ignoreCompilerChanged: Boolean = false, body: () -> CompileService.CallResult<R>): CompileService.CallResult<R> {
         val curState = state.alive.get()
         return when {
             curState < minAliveness.ordinal -> {
