@@ -87,7 +87,7 @@ abstract class LazyJavaScope(protected val c: LazyJavaResolverContext) : MemberS
 
         computeNonDeclaredFunctions(result, name)
 
-        c.components.signatureEnhancement.enhanceSignatures(result).toList()
+        c.components.signatureEnhancement.enhanceSignatures(c, result).toList()
     }
 
     open protected fun JavaMethodDescriptor.isVisibleAsFunction() = true
@@ -248,7 +248,7 @@ abstract class LazyJavaScope(protected val c: LazyJavaResolverContext) : MemberS
         if (DescriptorUtils.isAnnotationClass(ownerDescriptor))
             properties.toList()
         else
-            c.components.signatureEnhancement.enhanceSignatures(properties).toList()
+            c.components.signatureEnhancement.enhanceSignatures(c, properties).toList()
     }
 
     private fun resolveProperty(field: JavaField): PropertyDescriptor {

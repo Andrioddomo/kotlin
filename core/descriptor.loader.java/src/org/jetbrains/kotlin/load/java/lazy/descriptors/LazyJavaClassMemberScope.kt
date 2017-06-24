@@ -86,6 +86,7 @@ class LazyJavaClassMemberScope(
         }
 
         c.components.signatureEnhancement.enhanceSignatures(
+                c,
                 result.ifEmpty { listOfNotNull(createDefaultConstructor()) }
         ).toList()
     }
